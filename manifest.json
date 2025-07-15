@@ -1,0 +1,22 @@
+{
+    "name": "RMS International Group",
+    "short_name": "RMS Group",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "background_color": "#0056b3",
+    "theme_color": "#0056b3",
+    "description": "Solutions technologiques avanc\u00e9es - ERP, Cloud, Cybers\u00e9curit\u00e9, Formation",
+    "icons": [
+        {
+            "src": "icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "lang": "fr"
+}
