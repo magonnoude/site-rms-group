@@ -1,27 +1,19 @@
 /**
- * Attend que le DOM soit entièrement chargé avant d'exécuter les scripts.
- * C'est le point d'entrée principal de notre application.
+ * Fichier JavaScript principal pour le site RMS International Group.
+ * Gère le chargement des composants, l'interactivité et la soumission des formulaires.
  */
 document.addEventListener('DOMContentLoaded', async () => {
 
-    /**
-     * Charge un composant HTML (comme le header ou le footer) depuis un fichier externe
-     * et l'insère dans un élément de la page.
-     * @param {string} selector - Le sélecteur CSS de l'élément à remplir (ex: 'header').
-     * @param {string} filePath - Le chemin vers le fichier HTML à charger (ex: 'header.html').
-     */
+    // --- CHARGEMENT DES COMPOSANTS ---
+
     async function loadComponent(selector, filePath) {
         const placeholder = document.querySelector(selector);
-        if (!placeholder) {
-            // Si l'élément n'existe pas, on ne fait rien.
-            return; 
-        }
+        if (!placeholder) return;
         try {
             const response = await fetch(filePath);
             if (response.ok) {
                 placeholder.innerHTML = await response.text();
             } else {
-                // Si le fichier n'est pas trouvé, on l'indique dans la console.
                 console.error(`Le fichier ${filePath} est introuvable (${response.status}).`);
             }
         } catch (error) {
@@ -29,36 +21,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // On charge le header et le footer en parallèle et on attend que les deux soient terminés.
     await Promise.all([
         loadComponent('header', 'header.html'),
         loadComponent('footer', 'footer.html')
     ]);
 
-    // --- INITIALISATION DES SCRIPTS (après chargement du header/footer) ---
+    // --- INITIALISATION DES VARIABLES ET FONCTIONS GLOBALES ---
 
     const mainHtml = document.documentElement;
 
-    /**
-     * Met à jour les liens de la politique de confidentialité en fonction de la langue.
-     */
     function updatePrivacyLinks(lang) {
         const privacyLinks = document.querySelectorAll('.privacy-policy-link');
         const text = (lang === 'fr') ? 'Politique de confidentialité' : 'Privacy Policy';
         const pdfFile = (lang === 'fr') ? 'privacy-policy-fr.pdf' : 'privacy-policy-en.pdf';
-        
         privacyLinks.forEach(link => {
             link.href = pdfFile;
             link.textContent = text;
         });
     }
 
-    /**
-     * Change la langue affichée sur la page.
-     */
+    function updateCopyrightYear() {
+        const currentYear = new Date().getFullYear();
+        const copyrightFr = document.getElementById('copyright-notice');
+        const copyrightEn = document.getElementById('copyright-notice-en');
+        if (copyrightFr) {
+            copyrightFr.innerHTML = `&copy; 2021-${currentYear} RMS International Group. Tous droits réservés.`;
+        }
+        if (copyrightEn) {
+            copyrightEn.innerHTML = `&copy; 2021-${currentYear} RMS International Group. All rights reserved.`;
+        }
+    }
+
     function switchLanguage(lang) {
         mainHtml.lang = lang;
-        
         document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
         const activeBtn = document.querySelector(`.lang-btn[data-lang='${lang}']`);
         if (activeBtn) activeBtn.classList.add('active');
@@ -66,33 +61,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.querySelectorAll('.lang-fr, .lang-en').forEach(el => {
             el.style.display = el.classList.contains('lang-' + lang) ? '' : 'none';
         });
-        
+
         updatePrivacyLinks(lang);
+
+        const newsletterInputFr = document.querySelector('footer form input.lang-fr');
+        const newsletterInputEn = document.querySelector('footer form input.lang-en');
+        if (newsletterInputFr && newsletterInputEn) {
+            newsletterInputFr.required = (lang === 'fr');
+            newsletterInputEn.required = (lang === 'en');
+        }
     }
 
-    // Attache les écouteurs d'événements pour les boutons de langue.
+    // --- ATTACHE DES ÉCOUTEURS D'ÉVÉNEMENTS ---
+
     document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.addEventListener('click', () => switchLanguage(btn.dataset.lang));
     });
 
-    // Attache l'écouteur pour le menu mobile.
     const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
     if (mobileMenuBtn) {
         mobileMenuBtn.addEventListener('click', () => {
             document.querySelector('nav ul').classList.toggle('show');
         });
     }
-    
-    // Gère le défilement fluide pour les liens internes (ancres).
+
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
+        anchor.addEventListener('click', function(e) {
             const href = this.getAttribute('href');
             if (href && href.length > 1) {
                 const targetElement = document.querySelector(href);
                 if (targetElement) {
                     e.preventDefault();
                     window.scrollTo({
-                        top: targetElement.offsetTop - 80, // 80px pour compenser le header fixe
+                        top: targetElement.offsetTop - 80,
                         behavior: 'smooth'
                     });
                 }
@@ -100,14 +101,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    // Gère la soumission du formulaire de contact.
-    const form = document.querySelector('.contact-form form');
-    if (form) {
-        form.addEventListener('submit', async function(e) {
+    // --- GESTION DU FORMULAIRE DE CONTACT PRINCIPAL ---
+    const contactForm = document.querySelector('.contact-form form');
+    if (contactForm) {
+        contactForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const lang = mainHtml.lang || 'fr';
-            const submitBtn = form.querySelector('button[type="submit"].lang-' + lang) || form.querySelector('button[type="submit"]');
+            const submitBtn = contactForm.querySelector(`button[type="submit"].lang-${lang}`) || contactForm.querySelector('button[type="submit"]');
             const messages = {
                 recaptcha: { fr: "Veuillez valider le reCAPTCHA.", en: "Please complete the reCAPTCHA." },
                 sending: { fr: 'Envoi en cours...', en: 'Sending...' },
@@ -129,14 +130,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 message: document.getElementById('message').value.trim(),
                 'g-recaptcha-response': recaptchaValue
             };
-
-            const apiUrl = 'https://e9hpqlfmz2.execute-api.us-east-1.amazonaws.com/prod/contact/';
+            
+            const contactApiUrl = 'https://e9hpqlfmz2.execute-api.us-east-1.amazonaws.com/prod/contact/';
 
             try {
                 if(submitBtn) submitBtn.disabled = true;
                 if(submitBtn) submitBtn.textContent = messages.sending[lang];
 
-                const response = await fetch(apiUrl, {
+                const response = await fetch(contactApiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
@@ -148,37 +149,73 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 
                 alert(messages.success[lang]);
-                form.reset();
+                contactForm.reset();
                 if (typeof grecaptcha !== 'undefined') grecaptcha.reset();
 
             } catch (error) {
-                console.error("Erreur de soumission du formulaire :", error);
+                console.error("Erreur de soumission du formulaire de contact :", error);
                 alert(`${messages.error[lang]} (${error.message})`);
             } finally {
                 if(submitBtn) submitBtn.disabled = false;
-                const frBtn = form.querySelector('.lang-fr[type="submit"]');
-                const enBtn = form.querySelector('.lang-en[type="submit"]');
-                if(frBtn) frBtn.textContent = messages.send.fr;
-                if(enBtn) enBtn.textContent = messages.send.en;
+                contactForm.querySelector('.lang-fr[type="submit"]').textContent = messages.send.fr;
+                contactForm.querySelector('.lang-en[type="submit"]').textContent = messages.send.en;
             }
         });
     }
+
+    // --- GESTION DU FORMULAIRE DE LA NEWSLETTER ---
+    const newsletterForm = document.querySelector('footer form');
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const lang = mainHtml.lang || 'fr';
+            const emailInput = newsletterForm.querySelector(`input[type="email"].lang-${lang}`);
+            const submitBtn = newsletterForm.querySelector(`button[type="submit"].lang-${lang}`);
+            const messages = {
+                sending: { fr: 'Envoi...', en: 'Sending...' },
+                success: { fr: "Merci pour votre inscription !", en: "Thank you for subscribing!" },
+                error: { fr: "Une erreur est survenue.", en: "An error occurred." },
+                subscribe: { fr: "S'abonner", en: 'Subscribe' }
+            };
+
+            const email = emailInput.value.trim();
+            if (!email) return;
+
+            // !! IMPORTANT : REMPLACEZ PAR VOTRE NOUVELLE URL D'API POUR LA NEWSLETTER !!
+            const newsletterApiUrl = 'https://e9hpqlfmz2.execute-api.us-east-1.amazonaws.com/prod/newsletter'; 
+
+            try {
+                if (submitBtn) submitBtn.disabled = true;
+                if (submitBtn) submitBtn.textContent = messages.sending[lang];
+
+                const response = await fetch(newsletterApiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+
+                if (!response.ok) {
+                    throw new Error('La réponse du serveur n\'est pas OK');
+                }
+                
+                alert(messages.success[lang]);
+                newsletterForm.reset();
+
+            } catch (error) {
+                console.error("Erreur d'inscription à la newsletter :", error);
+                alert(messages.error[lang]);
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
+                newsletterForm.querySelector('.lang-fr[type="submit"]').textContent = messages.subscribe.fr;
+                newsletterForm.querySelector('.lang-en[type="submit"]').textContent = messages.subscribe.en;
+            }
+        });
+    }
+
+    // --- INITIALISATION FINALE ---
     
-    // Initialise la langue une seule fois, à la toute fin, pour s'assurer que tout est en place.
+    updateCopyrightYear();
     switchLanguage(mainHtml.lang || 'fr');
 
-    // --- GESTION DU COPYRIGHT DYNAMIQUE ---
-    function updateCopyrightYear() {
-        const currentYear = new Date().getFullYear();
-        const copyrightFr = document.getElementById('copyright-notice');
-        const copyrightEn = document.getElementById('copyright-notice-en');
-        if (copyrightFr) {
-            copyrightFr.innerHTML = `&copy; 2021-${currentYear} RMS International Group. Tous droits réservés.`;
-        }
-        if (copyrightEn) {
-            copyrightEn.innerHTML = `&copy; 2021-${currentYear} RMS International Group. All rights reserved.`;
-        }
-    }
-    updateCopyrightYear(); // On appelle la fonction pour l'exécuter au chargement de la page
-
-}); // Ceci est l'accolade de fin de votre 'DOMContentLoaded'
+});
