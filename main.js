@@ -4,8 +4,7 @@
  */
 document.addEventListener('DOMContentLoaded', async () => {
 
-    // --- CHARGEMENT DES COMPOSANTS ---
-
+    // --- CHARGEMENT DES COMPOSANTS (HEADER & FOOTER) ---
     async function loadComponent(selector, filePath) {
         const placeholder = document.querySelector(selector);
         if (!placeholder) return;
@@ -21,21 +20,41 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    // On attend que les composants soient chargés avant de manipuler leurs éléments.
     await Promise.all([
         loadComponent('header', 'header.html'),
         loadComponent('footer', 'footer.html')
     ]);
 
     // --- INITIALISATION DES VARIABLES ET FONCTIONS GLOBALES ---
-
     const mainHtml = document.documentElement;
 
     function updatePrivacyLinks(lang) {
-        const privacyLinks = document.querySelectorAll('.privacy-policy-link');
+        const links = document.querySelectorAll('.privacy-policy-link');
         const text = (lang === 'fr') ? 'Politique de confidentialité' : 'Privacy Policy';
-        const pdfFile = (lang === 'fr') ? 'privacy-policy-fr.pdf' : 'privacy-policy-en.pdf';
-        privacyLinks.forEach(link => {
-            link.href = pdfFile;
+        const file = (lang === 'fr') ? 'privacy-policy-fr.pdf' : 'privacy-policy-en.pdf';
+        links.forEach(link => {
+            link.href = file;
+            link.textContent = text;
+        });
+    }
+
+    function updateLegalNoticeLinks(lang) {
+        const links = document.querySelectorAll('.legal-notice-link');
+        const text = (lang === 'fr') ? 'Mentions Légales' : 'Legal Notice';
+        const file = (lang === 'fr') ? 'mentions-legales.html' : 'legal-notice.html';
+        links.forEach(link => {
+            link.href = file;
+            link.textContent = text;
+        });
+    }
+
+    function updateTermsLinks(lang) {
+        const links = document.querySelectorAll('.terms-conditions-link');
+        const text = (lang === 'fr') ? "Conditions Générales d'Utilisation" : 'Terms and Conditions';
+        const file = (lang === 'fr') ? 'conditions-generales.html' : 'terms-conditions.html';
+        links.forEach(link => {
+            link.href = file;
             link.textContent = text;
         });
     }
@@ -44,12 +63,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const currentYear = new Date().getFullYear();
         const copyrightFr = document.getElementById('copyright-notice');
         const copyrightEn = document.getElementById('copyright-notice-en');
-        if (copyrightFr) {
-            copyrightFr.innerHTML = `&copy; 2021-${currentYear} RMS International Group. Tous droits réservés.`;
-        }
-        if (copyrightEn) {
-            copyrightEn.innerHTML = `&copy; 2021-${currentYear} RMS International Group. All rights reserved.`;
-        }
+        if (copyrightFr) copyrightFr.innerHTML = `&copy; 2021-${currentYear} RMS International Group. Tous droits réservés.`;
+        if (copyrightEn) copyrightEn.innerHTML = `&copy; 2021-${currentYear} RMS International Group. All rights reserved.`;
     }
 
     function switchLanguage(lang) {
@@ -63,6 +78,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         updatePrivacyLinks(lang);
+        updateLegalNoticeLinks(lang);
+        updateTermsLinks(lang);
 
         const newsletterInputFr = document.querySelector('footer form input.lang-fr');
         const newsletterInputEn = document.querySelector('footer form input.lang-en');
@@ -106,7 +123,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (contactForm) {
         contactForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            
             const lang = mainHtml.lang || 'fr';
             const submitBtn = contactForm.querySelector(`button[type="submit"].lang-${lang}`) || contactForm.querySelector('button[type="submit"]');
             const messages = {
@@ -130,12 +146,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 message: document.getElementById('message').value.trim(),
                 'g-recaptcha-response': recaptchaValue
             };
-            
             const contactApiUrl = 'https://e9hpqlfmz2.execute-api.us-east-1.amazonaws.com/prod/contact/';
 
             try {
-                if(submitBtn) submitBtn.disabled = true;
-                if(submitBtn) submitBtn.textContent = messages.sending[lang];
+                if (submitBtn) submitBtn.disabled = true;
+                if (submitBtn) submitBtn.textContent = messages.sending[lang];
 
                 const response = await fetch(contactApiUrl, {
                     method: 'POST',
@@ -156,7 +171,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 console.error("Erreur de soumission du formulaire de contact :", error);
                 alert(`${messages.error[lang]} (${error.message})`);
             } finally {
-                if(submitBtn) submitBtn.disabled = false;
+                if (submitBtn) submitBtn.disabled = false;
                 contactForm.querySelector('.lang-fr[type="submit"]').textContent = messages.send.fr;
                 contactForm.querySelector('.lang-en[type="submit"]').textContent = messages.send.en;
             }
@@ -168,7 +183,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (newsletterForm) {
         newsletterForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            
             const lang = mainHtml.lang || 'fr';
             const emailInput = newsletterForm.querySelector(`input[type="email"].lang-${lang}`);
             const submitBtn = newsletterForm.querySelector(`button[type="submit"].lang-${lang}`);
@@ -182,7 +196,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             const email = emailInput.value.trim();
             if (!email) return;
 
-            // !! IMPORTANT : REMPLACEZ PAR VOTRE NOUVELLE URL D'API POUR LA NEWSLETTER !!
             const newsletterApiUrl = 'https://e9hpqlfmz2.execute-api.us-east-1.amazonaws.com/prod/newsletter'; 
 
             try {
@@ -214,7 +227,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // --- INITIALISATION FINALE ---
-    
     updateCopyrightYear();
     switchLanguage(mainHtml.lang || 'fr');
 
