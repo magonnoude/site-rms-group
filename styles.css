@@ -332,3 +332,37 @@ footer { background: var(--dark); color: #ccc; padding: 70px 0 20px; }
 .leader-socials a:hover {
     color: var(--accent); /* Couleur au survol */
 }
+/* --- Section Clients / Logos --- */
+.clients {
+    background-color: var(--light);
+}
+
+.logos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 40px;
+    align-items: center;
+    margin-top: 50px;
+}
+
+.logo-item {
+    text-align: center;
+    padding: 15px;
+}
+
+.logo-item img {
+    max-height: 55px; /* Ajustez la hauteur pour une taille uniforme */
+    width: auto;
+    max-width: 100%;
+    /* Effet professionnel : logos grisés par défaut */
+    filter: grayscale(100%);
+    opacity: 0.6;
+    transition: all 0.3s ease-in-out;
+}
+
+.logo-item img:hover {
+    /* Les couleurs reviennent au survol */
+    filter: grayscale(0%);
+    opacity: 1;
+    transform: scale(1.1);
+}
