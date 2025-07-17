@@ -29,33 +29,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- INITIALISATION DES VARIABLES ET FONCTIONS GLOBALES ---
     const mainHtml = document.documentElement;
 
-    function updatePrivacyLinks(lang) {
-        const links = document.querySelectorAll('.privacy-policy-link');
-        const text = (lang === 'fr') ? 'Politique de confidentialité' : 'Privacy Policy';
-        const file = (lang === 'fr') ? 'privacy-policy-fr.pdf' : 'privacy-policy-en.pdf';
-        links.forEach(link => {
-            link.href = file;
-            link.textContent = text;
+    function updateLegalLinks(lang) {
+        // Politique de confidentialité
+        const privacyLinks = document.querySelectorAll('.privacy-policy-link');
+        privacyLinks.forEach(link => {
+            link.href = (lang === 'fr') ? 'privacy-policy-fr.pdf' : 'privacy-policy-en.pdf';
+            link.textContent = (lang === 'fr') ? 'Politique de confidentialité' : 'Privacy Policy';
         });
-    }
 
-    function updateLegalNoticeLinks(lang) {
-        const links = document.querySelectorAll('.legal-notice-link');
-        const text = (lang === 'fr') ? 'Mentions Légales' : 'Legal Notice';
-        const file = (lang === 'fr') ? 'mentions-legales.html' : 'legal-notice.html';
-        links.forEach(link => {
-            link.href = file;
-            link.textContent = text;
+        // Mentions Légales
+        const legalLinks = document.querySelectorAll('.legal-notice-link');
+        legalLinks.forEach(link => {
+            link.href = (lang === 'fr') ? 'mentions-legales-fr.pdf' : 'legal-notice-en.pdf';
+            link.textContent = (lang === 'fr') ? 'Mentions Légales' : 'Legal Notice';
         });
-    }
 
-    function updateTermsLinks(lang) {
-        const links = document.querySelectorAll('.terms-conditions-link');
-        const text = (lang === 'fr') ? "Conditions Générales d'Utilisation" : 'Terms and Conditions';
-        const file = (lang === 'fr') ? 'conditions-generales.html' : 'terms-conditions.html';
-        links.forEach(link => {
-            link.href = file;
-            link.textContent = text;
+        // Conditions Générales
+        const termsLinks = document.querySelectorAll('.terms-conditions-link');
+        termsLinks.forEach(link => {
+            link.href = (lang === 'fr') ? 'conditions-generales-fr.pdf' : 'terms-conditions-en.pdf';
+            link.textContent = (lang === 'fr') ? "Conditions Générales d'Utilisation" : 'Terms and Conditions';
         });
     }
 
@@ -63,8 +56,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const currentYear = new Date().getFullYear();
         const copyrightFr = document.getElementById('copyright-notice');
         const copyrightEn = document.getElementById('copyright-notice-en');
-        if (copyrightFr) copyrightFr.innerHTML = `&copy; 2021-${currentYear} RMS International Group. Tous droits réservés.`;
-        if (copyrightEn) copyrightEn.innerHTML = `&copy; 2021-${currentYear} RMS International Group. All rights reserved.`;
+        if (copyrightFr) copyrightFr.innerHTML = `&copy; 2021-${currentYear} RMS International Group. Tous droits réservés. Tous les noms de sociétés, noms de produits et logos figurant ici sont des marques déposées ou des marques de service de leurs propriétaires respectifs.`;
+        if (copyrightEn) copyrightEn.innerHTML = `&copy; 2021-${currentYear} RMS International Group. All rights reserved. All company names, product names logos included here may be registered trademarks or service marks of their respective owners.`;
     }
 
     function switchLanguage(lang) {
@@ -77,9 +70,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             el.style.display = el.classList.contains('lang-' + lang) ? '' : 'none';
         });
 
-        updatePrivacyLinks(lang);
-        updateLegalNoticeLinks(lang);
-        updateTermsLinks(lang);
+        // Appel unique pour tous les liens légaux
+        updateLegalLinks(lang);
 
         const newsletterInputFr = document.querySelector('footer form input.lang-fr');
         const newsletterInputEn = document.querySelector('footer form input.lang-en');

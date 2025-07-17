@@ -116,6 +116,43 @@ main > section:last-of-type {
 .about-image { flex: 1; border-radius: 10px; overflow: hidden; }
 .about-image img { width: 100%; display: block; }
 
+/* --- Section Mission --- */
+.mission {
+    background-color: #ffffff; /* Fond blanc pour contraster avec les autres sections */
+}
+.mission-content {
+    display: flex;
+    align-items: center;
+    gap: 60px;
+}
+.mission-text {
+    flex: 1.2; /* Donne un peu plus de place au texte */
+}
+.mission-image {
+    flex: 0.8;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+.mission-image img {
+    width: 100%;
+    display: block;
+    aspect-ratio: 4 / 3; /* Garde une proportion d'image agréable */
+    object-fit: cover;
+}
+.mission-text h3 {
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+}
+
+/* On inverse l'ordre sur mobile pour avoir l'image en bas */
+@media (max-width: 992px) {
+    .mission-content {
+        flex-direction: column-reverse;
+    }
+}
+
 /* --- Section Services (page d'accueil) --- */
 .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 50px; }
 .service-card { background: white; border-radius: 10px; text-decoration: none; color: inherit; padding: 40px 25px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; }
@@ -278,4 +315,20 @@ footer { background: var(--dark); color: #ccc; padding: 70px 0 20px; }
     .mobile-menu-btn { display: block; }
     .hero-content h1 { font-size: 2.5rem; }
     .about-content, .contact-container, .service-content, .process-steps { flex-direction: column; grid-template-columns: 1fr; }
+}
+/* --- Styles pour les liens sociaux du Leadership --- */
+.leader-socials {
+    margin-bottom: 20px; /* Espace avant le paragraphe de description */
+    margin-top: -5px; /* Remonte un peu l'icône */
+}
+
+.leader-socials a {
+    color: var(--primary);
+    font-size: 1.6rem; /* Taille de l'icône */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.leader-socials a:hover {
+    color: var(--accent); /* Couleur au survol */
 }
